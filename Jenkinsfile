@@ -9,18 +9,11 @@ pipeline {
     stages {
         stage('Cloner le dépôt') {
             steps {
-                branch: 'master',
-                url: 'https://github.com/yasminekharrat123/TP1-Jenkins.git',
-                credentialsId: '29350dd6-046e-4588-b774-7a2fbe1e64a6'
+                git branch: 'master', 
+                    url: 'https://github.com/yasminekharrat123/TP1-Jenkins.git', 
+                    credentialsId: '29350dd6-046e-4588-b774-7a2fbe1e64a6'
             }
         }
-
-        stage('Installer les dépendances') {
-            steps {
-                sh 'npm ci'
-            }
-        }
-
         stage('Construire l’image Docker') {
             steps {
                 sh 'docker build -t $IMAGE_NAME:latest .'
