@@ -2,26 +2,20 @@ pipeline {
     agent any 
 
     environment {
-        IMAGE_NAME = "mon-app"
-        DOCKER_REGISTRY = "mon-registry"
+        IMAGE_NAME = "express-app"
+        DOCKER_REGISTRY = "my-registry"
     }
 
     stages {
         stage('Cloner le dépôt') {
             steps {
-                git branch: 'main', url: 'git@github.com:mon-utilisateur/mon-repo.git'
+                git branch: 'master', url: 'git@github.com:yasminekharrat123/TP1-Jenkins.git'
             }
         }
 
         stage('Installer les dépendances') {
             steps {
-                sh 'npm install'
-            }
-        }
-
-        stage('Exécuter les tests unitaires') {
-            steps {
-                sh 'npm test'  // Remplacez par la commande de vos tests
+                sh 'npm ci'
             }
         }
 
@@ -31,11 +25,15 @@ pipeline {
             }
         }
 
-        stage('Pousser l’image vers le registre') {
+        stage('Authentification Docker & Push') {
             steps {
-                withDockerRegistry([credentialsId: 'docker-hub-credentials', url: 'https://index.docker.io/v1/']) {
-                    sh 'docker tag $IMAGE_NAME:latest $DOCKER_REGISTRY/$IMAGE_NAME:latest'
-                    sh 'docker push $DOCKER_REGISTRY/$IMAGE_NAME:latest'
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+                        sh 'docker tag $IMAGE_NAME:latest $DOCKER_REGISTRY/$IMAGE_NAME:latest'
+                        sh 'docker push $DOCKER_REGISTRY/$IMAGE_NAME:latest'
+                        sh 'docker logout'
+                    }
                 }
             }
         }
