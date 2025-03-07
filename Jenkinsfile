@@ -9,7 +9,8 @@ pipeline {
     stages {
         stage('Cloner le dépôt') {
             steps {
-                git branch: 'master', url: 'git@github.com:yasminekharrat123/TP1-Jenkins.git'
+                git branch: 'master', url: 'https://github.com/yasminekharrat123/TP1-Jenkins.git'
+                credentialsId: '29350dd6-046e-4588-b774-7a2fbe1e64a6'
             }
         }
 
