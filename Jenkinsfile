@@ -14,6 +14,11 @@ pipeline {
                     credentialsId: '29350dd6-046e-4588-b774-7a2fbe1e64a6'
             }
         }
+        stage('Check Docker') {
+            steps {
+                sh 'docker version'
+            }
+        }
         stage('Construire l’image Docker') {
             steps {
                 sh 'docker build -t $IMAGE_NAME:latest .'
