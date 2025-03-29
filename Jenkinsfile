@@ -2,7 +2,7 @@ pipeline {
     agent any 
 
     environment {
-        IMAGE_NAME = "express-app"
+        IMAGE_NAME = "test-express-app"
         DOCKER_REGISTRY = "ykharrat848"
     }
 
