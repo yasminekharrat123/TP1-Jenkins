@@ -2,8 +2,7 @@ pipeline {
     agent any 
 
     environment {
-        IMAGE_NAME = "express-app"
-        DOCKER_REGISTRY = "my-registry"
+        IMAGE_NAME = "test-express-app"
     }
 
     stages {
@@ -31,7 +30,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                         sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
                         sh 'docker tag $IMAGE_NAME:latest $DOCKER_REGISTRY/$IMAGE_NAME:latest'
-                        sh 'docker push $DOCKER_REGISTRY/$IMAGE_NAME:latest'
+                        sh 'docker push $DOCKER_USER/$IMAGE_NAME:latest'
                         sh 'docker logout'
                     }
                 }
