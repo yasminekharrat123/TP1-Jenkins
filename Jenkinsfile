@@ -5,7 +5,6 @@ pipeline {
         IMAGE_NAME = "test-express-app"
         DOCKER_REGISTRY = "ykharrat848"
     }
-
     stages {
         stage('Check Docker') {
             steps {
