@@ -30,34 +30,37 @@ pipeline {
         //     }
         // }
 
-        stage('Install kubectl') {
-        steps {
-            script {
-                sh '''
-                    # 1. Fetch the stable version
-                    echo "Fetching stable kubectl version..."
-                    KUBECTL_VERSION=$(curl -sSL https://dl.k8s.io/release/stable.txt)
-                    echo "→ will install kubectl ${KUBECTL_VERSION}"
+        stage('Install & Deploy with Debug') {
+  steps {
+    script {
+      // 1. Install kubectl
+      sh '''
+        echo "Fetching kubectl..."
+        KUBECTL_VERSION=$(curl -sSL https://dl.k8s.io/release/stable.txt)
+        curl -sSL -o kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+      '''
 
-                    # 2. Download kubectl binary
-                    curl -sSL -o kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+      // 2. Bind kubeconfig and inspect it
+      withCredentials([file(credentialsId: 'kubeconfig-cred', variable: 'KUBECONFIG')]) {
+        sh '''
+          echo "KUBECONFIG is at: $KUBECONFIG"
+          ls -la $KUBECONFIG           # Verify the file exists
+          echo "---- kubeconfig contents ----"
+          sed -e 's/^/| /' $KUBECONFIG  # Safely print it with a prefix
+          echo "---- end contents ----"
 
-                    # 3. Make it executable
-                    chmod +x kubectl
-                '''
+          echo "kubectl sees these contexts:"
+          ./kubectl config view --minify
 
-                withCredentials([file(credentialsId: 'kubeconfig-cred', variable: 'KUBECONFIG')]) {
-                    sh '''
-                        echo "kubectl client version:"
-                        ./kubectl version --client
-
-                        echo "Applying deployment.yml using kubectl..."
-                        ./kubectl apply -f deployment.yml --validate=false
-                    '''
-                }
-            }
-        }
+          echo "Applying deployment.yml…"
+          ./kubectl apply -f deployment.yml --validate=false
+        '''
+      }
     }
+  }
+}
+
 
     }
 }
