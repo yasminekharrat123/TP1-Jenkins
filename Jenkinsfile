@@ -31,29 +31,33 @@ pipeline {
         // }
 
         stage('Install kubectl') {
-            steps {
+        steps {
+            script {
                 sh '''
-                # 1. Fetch the stable version, following redirects
-                echo "Fetching stable kubectl version..."
-                KUBECTL_VERSION=$(curl -sSL https://dl.k8s.io/release/stable.txt)
-                echo "→ will install kubectl ${KUBECTL_VERSION}"
+                    # 1. Fetch the stable version
+                    echo "Fetching stable kubectl version..."
+                    KUBECTL_VERSION=$(curl -sSL https://dl.k8s.io/release/stable.txt)
+                    echo "→ will install kubectl ${KUBECTL_VERSION}"
 
-                # 2. Download the binary, following redirects, into workspace
-                curl -sSL -o kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+                    # 2. Download kubectl binary
+                    curl -sSL -o kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
 
-                # 3. Make it executable
-                chmod +x kubectl
-
-                # 4. Verify it
-                echo "kubectl client version:"
-                ./kubectl version --client
-
-                #deploy using kubectl
-                ./kubectl apply -f deployment.yml --validate=false
-                ./kubectl apply -f deployment.yml --validate=false
-
+                    # 3. Make it executable
+                    chmod +x kubectl
                 '''
+
+                withCredentials([file(credentialsId: 'kubeconfig-cred', variable: 'KUBECONFIG')]) {
+                    sh '''
+                        echo "kubectl client version:"
+                        ./kubectl version --client
+
+                        echo "Applying deployment.yml using kubectl..."
+                        ./kubectl apply -f deployment.yml --validate=false
+                    '''
+                }
             }
         }
+    }
+
     }
 }
