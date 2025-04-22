@@ -47,16 +47,13 @@ pipeline {
                 # 4. Verify it
                 echo "kubectl client version:"
                 ./kubectl version --client
+
+                #deploy using kubectl
+                kubectl apply -f deployment.yml
+                kubectl apply -f service.yml
+
                 '''
             }
         }
-        stage('Déployer sur Kubernetes') {
-               steps {
-                   script {
-                       sh 'kubectl apply -f deployment.yml'
-                       sh 'kubectl apply -f service.yml'
-                   }
-               }
-           }
     }
 }
