@@ -33,10 +33,17 @@ pipeline {
         stage('Install kubectl') {
             steps {
                 sh '''
-                curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                # Get latest stable version
+                KUBECTL_VERSION=$(curl -s -H "Accept: application/vnd.github.v3+json" https://dl.k8s.io/release/stable.txt)
+                
+                # Download kubectl binary
+                curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+                
                 chmod +x kubectl
-                sudo mv kubectl /usr/local/bin/ || export PATH=$PATH:$(pwd)
-                kubectl version --client
+                
+                # Use local version if no sudo
+                echo "Using kubectl version:"
+                ./kubectl version --client
                 '''
             }
         }
