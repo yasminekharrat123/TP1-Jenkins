@@ -46,7 +46,7 @@ pipeline {
 
                 # 4. Verify it
                 echo "kubectl client version:"
-                ./kubectl version --client --short
+                ./kubectl version --client
                 '''
             }
         }
