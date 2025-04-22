@@ -49,8 +49,8 @@ pipeline {
                 ./kubectl version --client
 
                 #deploy using kubectl
-                ./kubectl apply -f deployment.yml
-                ./kubectl apply -f service.yml
+                ./kubectl apply -f deployment.yml --validate=false
+                ./kubectl apply -f deployment.yml --validate=false
 
                 '''
             }
