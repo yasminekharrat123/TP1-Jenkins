@@ -17,16 +17,27 @@ pipeline {
             }
         }
 
-        stage('Authentification Docker & Push') {
+        // stage('Authentification Docker & Push') {
+        //     steps {
+        //         script {
+        //             withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+        //                 sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+        //                 sh 'docker tag $IMAGE_NAME:latest $DOCKER_REGISTRY/$IMAGE_NAME:latest'
+        //                 sh 'docker push $DOCKER_REGISTRY/$IMAGE_NAME:latest'
+        //                 sh 'docker logout'
+        //             }
+        //         }
+        //     }
+        // }
+
+        stage('Install kubectl') {
             steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
-                        sh 'docker tag $IMAGE_NAME:latest $DOCKER_REGISTRY/$IMAGE_NAME:latest'
-                        sh 'docker push $DOCKER_REGISTRY/$IMAGE_NAME:latest'
-                        sh 'docker logout'
-                    }
-                }
+                sh '''
+                curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                chmod +x kubectl
+                sudo mv kubectl /usr/local/bin/ || export PATH=$PATH:$(pwd)
+                kubectl version --client
+                '''
             }
         }
         stage('Déployer sur Kubernetes') {
