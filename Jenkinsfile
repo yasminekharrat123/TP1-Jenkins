@@ -33,17 +33,20 @@ pipeline {
         stage('Install kubectl') {
             steps {
                 sh '''
-                # Get latest stable version
-                KUBECTL_VERSION=$(curl -s -H "Accept: application/vnd.github.v3+json" https://dl.k8s.io/release/stable.txt)
-                
-                # Download kubectl binary
-                curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
-                
+                # 1. Fetch the stable version, following redirects
+                echo "Fetching stable kubectl version..."
+                KUBECTL_VERSION=$(curl -sSL https://dl.k8s.io/release/stable.txt)
+                echo "→ will install kubectl ${KUBECTL_VERSION}"
+
+                # 2. Download the binary, following redirects, into workspace
+                curl -sSL -o kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+
+                # 3. Make it executable
                 chmod +x kubectl
-                
-                # Use local version if no sudo
-                echo "Using kubectl version:"
-                ./kubectl version --client
+
+                # 4. Verify it
+                echo "kubectl client version:"
+                ./kubectl version --client --short
                 '''
             }
         }
