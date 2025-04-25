@@ -33,7 +33,6 @@ pipeline {
         stage('Install & Deploy with Debug') {
   steps {
     script {
-      // 1. Install kubectl
       sh '''
         echo "Fetching kubectl..."
         KUBECTL_VERSION=$(curl -sSL https://dl.k8s.io/release/stable.txt)
@@ -41,15 +40,8 @@ pipeline {
         chmod +x kubectl
       '''
 
-      // 2. Bind kubeconfig and inspect it
       withCredentials([file(credentialsId: 'kubeconfig-cred', variable: 'KUBECONFIG')]) {
         sh '''
-          echo "KUBECONFIG is at: $KUBECONFIG"
-          ls -la $KUBECONFIG           # Verify the file exists
-          echo "---- kubeconfig contents ----"
-          sed -e 's/^/| /' $KUBECONFIG  # Safely print it with a prefix
-          echo "---- end contents ----"
-
           echo "kubectl sees these contexts:"
           ./kubectl config view --minify
 
