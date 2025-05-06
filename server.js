@@ -3,19 +3,27 @@ import cors from 'cors';
 import db from './database.js';
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+const port = process.env.PORT || 3000;
 
-const PORT = 3000;
-
-app.get('/users', async (req, res) => {
+app.get('/ping', async (req, res) => {
     try {
-        const users = await db.all('SELECT * FROM users');
-        res.json(users);
+      await db.get('SELECT 1');
+      res.status(200).send('pong');
     } catch (err) {
-        res.status(500).json({ error: err.message });
+      console.error('Health check failed:', err);
+      res.status(500).send('Database not reachable');
     }
+  });
+  
+app.get('/users', async (req, res) => {
+  try {
+    const users = await db.all('SELECT * FROM users');
+    res.json({ users });
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' });
+  }
 });
+
 
 app.get('/users/:id', async (req, res) => {
     try {
@@ -46,6 +54,8 @@ app.delete('/users/:id', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+app.listen(port, () => {
+    console.log(`App listening on port ${port}`);
+  });
+  
+
